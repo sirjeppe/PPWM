@@ -90,13 +90,17 @@ class PPWM:
         self._dirty = Value('i', 0)
 
     def start(self):
-        self._p = PPWM_process(self._run, self._dirty, self._pin, self._target_frequency, self._duty_cycle, self._resolution)
-        self._p.start()
+        if self._p is None:
+            self._p = PPWM_process(self._run, self._dirty, self._pin, self._target_frequency, self._duty_cycle, self._resolution)
+            self._p.start()
+        else:
+            raise Exception('PPWM instance already started. Call stop() before calling start() again.')
 
     def stop(self):
         self._run.value = 0
         self._dirty.value = 1
         self._p.join()
+        self._p = None
 
     def set_duty_cycle(self, dc):
         self._duty_cycle.value = float(dc)
